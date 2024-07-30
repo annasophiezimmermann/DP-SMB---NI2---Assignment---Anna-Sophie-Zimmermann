@@ -14,6 +14,8 @@ library(RColorBrewer)
 library(tidyverse)
 library(ggpubr)
 library(readr)
+library(gridExtra)
+library(rmarkdown)
 
 # Load data
 url1 <- "https://raw.githubusercontent.com/annasophiezimmermann/DP-SMB---NI2---Assignment---Anna-Sophie-Zimmermann/main/Assignment/My%20data/MEA1_D20(000).csv"
@@ -238,6 +240,8 @@ ui <- fluidPage(
       # time-consuming.
       actionButton("update", "Update View")
       
+      # Add download button for the table
+      downloadButton("downloadPDF", "Download Data as PDF")
     ),
     
     # Main panel for displaying outputs
@@ -284,7 +288,29 @@ server <- function(input, output) {
   output$view <- renderTable({
     head(datasetInput(), n = isolate(input$obs))
   })
-  
+   # Download handler for the download button
+  output$downloadPDF <- downloadHandler(
+    filename = function() {
+      paste(input$dataset, "-data.pdf", sep = "")
+    },
+    content = function(file) {
+    # Create a temporary Rmd file
+      tempReport <- file.path(tempdir(), "report.Rmd")
+      file.copy("report.Rmd", tempReport, overwrite = TRUE)
+      
+    # Set up parameters to pass to Rmd document
+      params <- list(
+        dataset = head(datasetInput(), n = isolate(input$obs))
+      )
+      
+    # Knit the document, passing in the `params` list, and eval it in a
+    # child of the global environment (this isolates the code in the document
+    # from the code in the app).
+      rmarkdown::render(tempReport, output_file = file,
+                        params = params,
+                        envir = new.env(parent = globalenv()))
+    }
+  )
 }
 
 # Create Shiny app ----
