@@ -13,9 +13,11 @@ library(ggplot2)
 library(RColorBrewer)
 library(tidyverse)
 library(ggpubr)
+library(readr)
 
 # Load data
-MEA1D20 <- read.csv("P:/28-Project_Organization/SECPDp/MEA/MEA1/MEA1_D20(000).csv",
+url1 <- "https://raw.githubusercontent.com/annasophiezimmermann/DP-SMB---NI2---Assignment---Anna-Sophie-Zimmermann/main/Assignment/My%20data/MEA1_D20(000).csv"
+MEA1D20 <- read.csv(url1,
                     header = T, skip = 156, sep=",",   nrows = 26)
 
 n <- MEA1D20$Measurement 
@@ -25,7 +27,8 @@ m <- rownames(MEA1D20t)
 MEA1D20t %>% mutate(wells = rownames(MEA1D20t)) %>% mutate(timePoint = "day20") %>% mutate(day = 20) %>% mutate(experiment = "MEA1") -> MEA1D20t
 m -> rownames(MEA1D20t)
 
-MEA1D25 <- read.csv("P:/28-Project_Organization/SECPDp/MEA/MEA1/MEA1_D25(000).csv",
+url2 <- "https://raw.githubusercontent.com/annasophiezimmermann/DP-SMB---NI2---Assignment---Anna-Sophie-Zimmermann/main/Assignment/My%20data/MEA1_D25(000).csv"
+MEA1D25 <- read.csv(url2,
                     header = T, skip = 156, sep=",",   nrows = 26)
 
 n <- MEA1D25$Measurement 
@@ -36,7 +39,8 @@ MEA1D25t %>% mutate(wells = rownames(MEA1D25t)) %>% mutate(timePoint = "day25") 
 m -> rownames(MEA1D25t)
 #
 
-MEA1D30 <- read.csv("P:/28-Project_Organization/SECPDp/MEA/MEA1/MEA1_D30(000).csv",
+url3 <- "https://raw.githubusercontent.com/annasophiezimmermann/DP-SMB---NI2---Assignment---Anna-Sophie-Zimmermann/main/Assignment/My%20data/MEA1_D30(000).csv"
+MEA1D30 <- read.csv(url3,
                     header = T, skip = 156, sep=",",   nrows = 26)
 
 n <- MEA1D30$Measurement 
@@ -46,7 +50,8 @@ m <- rownames(MEA1D30t)
 MEA1D30t %>% mutate(wells = rownames(MEA1D30t)) %>% mutate(timePoint = "day30") %>% mutate(day = 30) %>% mutate(experiment = "MEA1") -> MEA1D30t
 m -> rownames(MEA1D30t)
 
-MEA1D35 <- read.csv("P:/28-Project_Organization/SECPDp/MEA/MEA1/MEA1_D35(000).csv",
+url4 <- "https://raw.githubusercontent.com/annasophiezimmermann/DP-SMB---NI2---Assignment---Anna-Sophie-Zimmermann/main/Assignment/My%20data/MEA1_D35(000).csv"
+MEA1D35 <- read.csv(url4,
                     header = T, skip = 156, sep=",",   nrows = 26)
 
 n <- MEA1D35$Measurement 
@@ -57,7 +62,8 @@ MEA1D35t %>% mutate(wells = rownames(MEA1D35t)) %>% mutate(timePoint = "day35") 
 m -> rownames(MEA1D35t)
 #
 
-MEA1D40 <- read.csv("P:/28-Project_Organization/SECPDp/MEA/MEA1/MEA1_D40(000).csv",
+url5 <- "https://raw.githubusercontent.com/annasophiezimmermann/DP-SMB---NI2---Assignment---Anna-Sophie-Zimmermann/main/Assignment/My%20data/MEA1_D40(000).csv"
+MEA1D40 <- read.csv(url5,
                     header = T, skip = 156, sep=",",   nrows = 26)
 
 n <- MEA1D40$Measurement 
@@ -167,13 +173,7 @@ data_noOut_well <- summary_in %>%
   dplyr::mutate(count_na = apply(., 1, count_na))
 data_noOut_well <-summary_in[!(data_noOut_well$count_na >= 19),] # remove wells containing no info 
 
-
-# remove the data containinf outlayers from main dataset * a outlayer in one single feature will cause the removal of full well data 
-
-# NOTE!! if zeros are kept, may infomation will be extracted based on a simple value due to the zeros being the mean !! 
 # transfrom 0 into NAs 
-
-
 #dataWell_noZero <- replace(dataWell, dataWell == 0, NA)
 datatest_NA <- data.frame()
 
@@ -196,10 +196,6 @@ for (i in 1:length(groupOut))
 } 
 
 
-#saving info: 
-# files without outliers were generated from file No zeros - reason: too many zeros cause exclusion of real values as outliers 
-# _well > meaningn all well information was removed for all variable when at least one of the variables presented one outlier -> the well is not consider any longer 
-
 # Remove an entire row if it has >22 NAs (for example >50% of your features)
 count_na <- function(x)sum(is.na(x))
 data_noOut_value <- datatest_NA %>%
@@ -211,31 +207,31 @@ data_noOut_value <-datatest_NA[!(data_noOut_value$count_na >=19),] # remove well
 ui <- fluidPage(
   
   
-  # App title ----
+  # App title 
   titlePanel("DP-SMB - NextImmune2 - Data Science Meetings - Task 3"),
   
   # Use sandstone theme from shinythemes
   theme = shinytheme("sandstone"),
   
-  # Sidebar layout with input and output definitions ----
+  # Sidebar layout with input and output definitions
   sidebarLayout(
     
-    # Sidebar panel for inputs ----
+    # Sidebar panel for inputs
     sidebarPanel(
       
-      # Input: Select a dataset ----
+      # Input: Select a dataset
       selectInput("dataset", "Choose a dataset:",
                   choices = c("MEA1D20", "MEA1D25", "MEA1D30", "MEA1D35", "MEA1D40")),
       
-      # Input: Specify the number of observations to view ----
+      # Input: Specify the number of observations to view
       numericInput("obs", "Number of observations to view:", 10),
       
-      # Include clarifying text ----
+      # Include clarifying text
       helpText("Note: while the data view will show only the specified",
                "number of observations, the summary will still be based",
                "on the full dataset."),
       
-      # Input: actionButton() to defer the rendering of output ----
+      # Input: actionButton() to defer the rendering of output 
       # until the user explicitly clicks the button (rather than
       # doing it immediately when inputs change). This is useful if
       # the computations required to render output are inordinately
@@ -244,14 +240,14 @@ ui <- fluidPage(
       
     ),
     
-    # Main panel for displaying outputs ----
+    # Main panel for displaying outputs
     mainPanel(
       
-      # Output: Header + summary of distribution ----
+      # Output: Header + summary of distribution
       h4("Summary"),
       verbatimTextOutput("summary"),
       
-      # Output: Header + table of distribution ----
+      # Output: Header + table of distribution
       h4("Observations"),
       tableOutput("view")
     )
@@ -259,10 +255,10 @@ ui <- fluidPage(
   )
 )
 
-# Define server logic to summarize and view selected dataset ----
+# Define server logic to summarize and view selected dataset 
 server <- function(input, output) {
   
-  # Return the requested dataset ----
+  # Return the requested dataset 
   # Note that we use eventReactive() here, which depends on
   # input$update (the action button), so that the output is only
   # updated when the user clicks the button
@@ -275,13 +271,13 @@ server <- function(input, output) {
            "MEA1D40" = MEA1D40t)
   }, ignoreNULL = FALSE)
   
-  # Generate a summary of the dataset ----
+  # Generate a summary of the dataset 
   output$summary <- renderPrint({
     dataset <- datasetInput()
     summary(dataset)
   })
   
-  # Show the first "n" observations ----
+  # Show the first "n" observations
   # The use of isolate() is necessary because we don't want the table
   # to update whenever input$obs changes (only when the user clicks
   # the action button)
